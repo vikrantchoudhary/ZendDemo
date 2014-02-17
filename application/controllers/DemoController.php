@@ -13,19 +13,20 @@ class DemoController extends Zend_Controller_Action
     public function init()
     {
         /* Initialize action controller here */
-
+        $this->usermodel = new Application_Model_Users();
+        $this->loginform = new Application_Form_LoginForm();
+        $this->regform = new Application_Form_RegistrationForm();
+        $this->storage = new Zend_Auth_Storage_Session();
     }
 
     public function indexAction()
     {
-        $model = new Application_Model_Users();
-        $form = new Application_Form_LoginForm();
-        $this->view->form = $form;
+        $this->view->form = $this->loginform;
         if($this->getRequest()->isPost()){
-            if($form->isValid($_POST)){
-                $data = $form->getValues();
+            if($this->loginform->isValid($_POST)){
+                $data = $this->loginform->getValues();
                 $auth = Zend_Auth::getInstance();
-                $authAdapter = new Zend_Auth_Adapter_DbTable($model->getAdapter(),'Users');
+                $authAdapter = new Zend_Auth_Adapter_DbTable($this->usermodel->getAdapter(),'Users');
                 $authAdapter->setIdentityColumn('username')
                     ->setCredentialColumn('password');
                 $authAdapter->setIdentity($data['username'])
@@ -43,30 +44,26 @@ class DemoController extends Zend_Controller_Action
     }
 
     public function signupAction() {
-        $users = new Application_Model_Users();
-        $form = new Application_Form_RegistrationForm();
-        $this->view->form=$form;
+        $this->view->form=$this->regform;
         if($this->getRequest()->isPost()){
-            if($form->isValid($_POST)){
-                $data = $form->getValues();
+            if($this->regform->isValid($_POST)){
+                $data = $this->regform->getValues();
                 if($data['password'] != $data['confirmPassword']){
                     $this->view->errorMessage = "Password and confirm password don’t match.";
                     return;
                 }
                 unset($data['confirmPassword']);
-                $users->createUser($data);
+                $this->usermodel->createUser($data);
                 $this->_redirect('Demo/index');
             }
         }
     }
     public function logoutAction() {
-        $storage = new Zend_Auth_Storage_Session();
-        $storage->clear();
+        $this->storage->clear();
         $this->_redirect('Demo/index');
     }
     public function homeAction() {
-        $storage = new Zend_Auth_Storage_Session();
-        $data = $storage->read();
+        $data = $this->storage->read();
         if(!$data)
         {
             $this->_redirect('Demo/index');
