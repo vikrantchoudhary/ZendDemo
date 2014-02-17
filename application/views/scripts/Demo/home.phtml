@@ -1,0 +1,27 @@
+<br><br><br>
+    <font color=green>Welcome
+        <?=$this->username?>,
+        <br>
+        List of users
+        <div>
+            <table border="1">
+                <tr><td>username</td> <td>first name</td><td>Last name</td>
+                    <?php  foreach($this->userslist as $columns)
+                    {
+                        echo" <tr><td>$columns->username</td>";
+                        echo "<td>$columns->firstname</td>";
+                        echo "<td>$columns->lastname</td></tr>";
+                    }
+                    ?>
+                </tr>
+
+            </table>
+        </div>
+        <br>
+            This is your home page
+        <br>
+        <br>
+        <a href='<?php $i=$this->baseUrl()."/Demo/logout"; echo $i; ?>'>Click here to logout</a></font>
+    <?php
+    echo $this->form;
+    ?>
